@@ -1,0 +1,19 @@
+{
+    "game": [{
+        "type": "spritesheet",
+        "key": "player",
+        "url": "assets/dungeontest/images/playersprite2a.png",
+        "frameWidth": 32,
+        "frameHeight": 32,
+        "frameMax": -1,
+        "margin": 0,
+        "spacing": 0
+    }],
+    "meta": {
+        "generated": "1486505715409",
+        "app": "Phaser Editor",
+        "url": "http://phasereditor.boniatillo.com",
+        "version": "1.0",
+        "copyright": "Arian Fornaris (c) 2015,2016"
+    }
+}
