@@ -13,13 +13,15 @@ Player = function(game, x, y){
 
 
 	this.health = 20;
+	this.dexterity = 10;
+	this.strength = 10;
+	this.vitality = 10;
+
 	this.attackRate = 2;
 	this.primalDamage = 1;
-	this.dexterity = 13;
-
+	this.protection = 1;
 	this.weaponDamage = 0;
 	this.block = 0;
-	this.protection = 1;
 	this.reach = 1;
 
 	this.inventory = [];
@@ -82,6 +84,16 @@ Player = function(game, x, y){
 				this.groupCombatEnabled = true;
 				this.engageGroupCombat(levelObjects.enemies);
 			}
+		}else if(game.input.activePointer.rightButton.isDown && !this.groupCombatEnabled){
+			for(var i = 0; i < levelObjects.enemies.length; i++){
+				var enemy = levelObjects.enemies[i];
+				if(enemy.attacking){
+					if(this.checkHitEnemy(enemy, game.input.activePointer.x+game.camera.x, game.input.activePointer.y+game.camera.y)){
+						this.parry(enemy);
+					}
+				}
+
+			}
 		}else if(this.wasd.up.isDown){
 			this.body.velocity.y = -100;
 			this.animations.play("up");
@@ -116,7 +128,7 @@ Player = function(game, x, y){
 				var enemy = enemies[i];
 				
 				if(this.checkHitEnemy(enemy, game.input.activePointer.x+game.camera.x, game.input.activePointer.y+game.camera.y)){
-					enemy.takeDamage(this, "primary");
+					this.dealDamage(this, "primary");
 				}
 			}
 
@@ -161,28 +173,33 @@ Player = function(game, x, y){
 				//Try to parry the enemy attack
 				console.log("parry: " + nextAttacker.id);
 
-				var parryResult = this.parryEnemy(nextAttacker);
-				
-				switch(parryResult){
-					case "ok" :
-						break;
-					case "good":
-						nextAttacker.takeDamage(this, "parry_good");
-						break;
-					case "perfect":
-						break;
-				
-				}
+				this.parry(nextAttacker);
 				
 				this.timeAttacked = game.time.now;
 			}
 		}
 	};
 	
-	this.parryEnemy = function(enemy){
+	this.parry = function(enemy){
+		console.log("try parry");
 		//TODO: calculate how the parry went.
-		
-		return "good";
+		var parryResult = "good";
+
+		switch(parryResult){
+			case "fail":
+				break;
+			case "ok" :
+				break;
+			case "good":
+				enemy.interrupted = true;
+				enemy.tempCooldownTime = 3000;
+				console.log("enemy" + enemy.id + " gets +" + enemy.tempCooldownTime + " extra cooldown.");
+				enemy.takeDamage(this, "parry_good");
+				break;
+			case "perfect":
+				break;
+				
+		}
 	};
 	
 	this.checkReach = function(object){
@@ -210,4 +227,20 @@ Player = function(game, x, y){
 
 		return false;
 	};
+
+	this.dealDamage = function(enemy, attackType){
+		var damageDealt = 0;
+		var damageTaken = 0;
+		if(attackType === "primary"){
+			damageDealt = this.weaponDamage;
+		}else if(attackType === "parry_good"){
+			//TODO: Calculate the damage of parry.
+			damageDealt = 3;
+			//TODO: Markera fiende som parerad.
+		}
+
+		damageTaken = damageDealt - this.protection;
+
+		enemy.takeDamage(damageTaken);
+	}
 };

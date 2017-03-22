@@ -10,10 +10,14 @@ NPC.prototype = Object.create(Phaser.Sprite.prototype);
 
 Item.prototype = Object.create(Phaser.Sprite.prototype);
 
+Weapon.prototype = Object.create(Item.prototype);
+
 Door.prototype = Object.create(Phaser.Sprite.prototype);
 
 TopDownGame.Game.prototype = {
 	create: function(){
+		this.game.canvas.oncontextmenu = function (e) { e.preventDefault(); }
+
 		this.map = this.game.add.tilemap('dungeontest');
 		this.map.addTilesetImage('tiles', 'gameTiles');
 
@@ -50,6 +54,9 @@ TopDownGame.Game.prototype = {
 		this.gameLogHistory = [];
 
 		this.addText("Welcome!");
+
+		var weapon = new Weapon();
+		console.log(weapon);
 	},
 
 	update: function(){
@@ -204,6 +211,8 @@ TopDownGame.Game.prototype = {
 			
 			enemy.countStats();
 			this.enemies.add(enemy);
+			enemy.body.setSize(13,32,16,9);
+
 		}
 	},
 	

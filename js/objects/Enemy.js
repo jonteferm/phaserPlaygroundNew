@@ -7,7 +7,7 @@ Enemy = function(game, x, y, type){
 		chest: {name: "chainmail", type: "armor", damage: 0, protection: 1},
 	};
 
-	this.health = 1;
+	this.health = 10;
 	this.primalDamage = 1;
 	this.weaponDamage = 0;
 	this.protection = 1;
@@ -18,6 +18,8 @@ Enemy = function(game, x, y, type){
 	this.inventory = [];
 	this.timeAttacked = 0;
 	this.tempCooldownTime = 0;
+	this.interrupted = false;
+	this.attacking = false;
 
     this.animations.add('right', [0,1], 10, true);
 	this.animations.add('left', [2,3], 10, true);
@@ -77,9 +79,33 @@ Enemy = function(game, x, y, type){
 				var opponent = levelObjects.opponents[i];
 
 				if(this.checkHitOpponent(opponent)){
-					//todo: opponent.takeDamage
-					this.timeAttacked = game.time.now;
+					this.attacking = true;
+				    var attText = game.add.text(this.x+10, this.y-25, "!", {
+						font: "16px Arial",
+    					fill: "#0000ff",
+					});
+
+					var attTextFadeOut = game.add.tween(attText).to({alpha: 0}, 1000, null, true);
+
+					attTextFadeOut.onComplete.add(function(){
+						attText.destroy();
+							//todo: opponent.takeDamage
+					});
+  
 					console.log("enemy " + this.id + " strikes player!");
+					this.timeAttacked = game.time.now;
+
+	  				game.time.events.add(Phaser.Timer.SECOND * 1, function(){
+	  					if(this.interrupted){
+							console.log("miss player");
+	  					}else{
+							console.log("hit player");
+	  					}
+	  		
+	  					this.attacking = false;
+					}, this);
+
+					this.interrupted = false;
 				}
 			}
 			
@@ -103,47 +129,26 @@ Enemy = function(game, x, y, type){
 		return false;
 	};
 
-	this.takeDamage = function(attacker, attackType){
-		var damageDealt = 0;
-		var damageTaken = 0;
-
-		if(attackType === "primary"){
-			damageDealt = attacker.weaponDamage;
-		}else if(attackType === "parry_good"){
-			//TODO: Calculate the damage of parry.
-			damageDealt = 3;
-			this.tempCooldownTime = 3000;
-			
-			//TODO: Markera fiende som parerad.
-		}
-
-		damageTaken = damageDealt - this.protection;
-
+	this.takeDamage = function(damageTaken){
 		if(damageTaken > 0){
 			console.log("enemy" + this.id + " takes " + damageTaken + " damage.");
 		}
-		
-		if(this.tempCooldownTime > 0){
-			console.log("enemy" + this.id + " gets +" + this.tempCooldownTime + " extra cooldown.");
-		}
-
 
 		this.health -= damageTaken;
 
 		if(damageTaken > 0){
 			//todo: Spela blod-animation.
-			game.time.events.add(1000*attacker.attackRate, function(){
-			    var dmgText = game.add.text(this.x, this.y-25, "-"+damageTaken, {
-					font: "16px Arial",
-	    			fill: "#ff0000",
-				});
+			
+		    var dmgText = game.add.text(this.x, this.y-25, "-"+damageTaken, {
+				font: "16px Arial",
+    			fill: "#ff0000",
+			});
 
-				var dmgTextFadeOut = game.add.tween(dmgText).to({alpha: 0}, 1500, null, true);
+			var dmgTextFadeOut = game.add.tween(dmgText).to({alpha: 0}, 1500, null, true);
 
-				dmgTextFadeOut.onComplete.add(function(){
-					dmgText.destroy();
-				});
-			}, this);
+			dmgTextFadeOut.onComplete.add(function(){
+				dmgText.destroy();
+			});
 		}
 
 		if(this.health < 1){
