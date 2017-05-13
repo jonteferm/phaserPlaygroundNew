@@ -3,4 +3,6 @@ Item = function(game, x, y, sprite){
 	this.gameProperties = {
 		itemLevel: 0,
 	};
+
+	this.hej = 0;
 };

@@ -1,0 +1,4 @@
+Weapon = function(){
+	
+
+};
