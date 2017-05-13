@@ -6,6 +6,7 @@ TopDownGame.Preload.prototype = {
 	preload: function(){
 		this.load.tilemap('dungeontest', 'assets/dungeontest/tilemaps/oryxtiles.json', null, Phaser.Tilemap.TILED_JSON);
 		this.load.image('gameTiles', 'assets/dungeontest/images/tiles.png');
+		this.load.image('tree', 'assets/dungeontest/images/tree.png');
 		this.load.spritesheet('player', 'assets/dungeontest/images/playersprite.png', 48, 48);
 		this.load.spritesheet('cultist', 'assets/dungeontest/images/cultist.png', 48, 48);
 		this.load.spritesheet('maiden', 'assets/dungeontest/images/maiden.png', 48, 48);

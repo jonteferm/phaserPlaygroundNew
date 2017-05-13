@@ -12,22 +12,24 @@ Player = function(game, x, y){
 	};
 
 
+	this.name = "Sigfried";
+	
 	this.health = 20;
-	this.attackRate = 2;
+	this.attackRate = 3;
 	this.primalDamage = 1;
 	this.dexterity = 13;
 
 	this.weaponDamage = 0;
 	this.block = 0;
 	this.protection = 1;
-	this.reach = 1;
+	this.reach = 2;
 
 	this.inventory = [];
 	this.lastDirction = "";
 	this.timeAttacked = 0;
 
 	this.attacking = false;
-	this.combatStyle = "single";
+	
 	this.groupCombatEnabled = false;
 
 	this.animations.add('idleRight', [0], 5, true);
@@ -42,6 +44,11 @@ Player = function(game, x, y){
 	this.animations.add('down', [13, 14, 15], 5);
 	this.animations.add('hitDown', [13, 16, 17], 5, true);
 
+	this.reachCircle = this.game.add.graphics();
+	this.reachCircle.beginFill(0x000000, 1);
+	this.reachCircle.drawCircle(this.x+24, this.y+24, this.reach*48);
+	this.reachCircle.alpha = 0.2;
+	this.reachCircle.endFill();
 	
 	this.events.onAnimationComplete.add(function(){			
 		this.animations.stop(true, true);
@@ -53,6 +60,11 @@ Player = function(game, x, y){
 		left: this.game.input.keyboard.addKey(Phaser.Keyboard.A),
 		right: this.game.input.keyboard.addKey(Phaser.Keyboard.D)
 	};
+	
+	this.combatKeys = {
+		switchCombatStyle: this.game.input.keyboard.addKey(Phaser.Keyboard.Q)
+	};
+	
 
 	this.countStats = function(){
 		for (var property in this.equipped) {
@@ -72,16 +84,23 @@ Player = function(game, x, y){
 	};
 
 	this.checkActions = function(levelObjects){
+		this.reachCircle.clear();
+		this.reachCircle.beginFill(0x000000, 1);
+		this.reachCircle.drawCircle(this.x+24, this.y+24, this.reach*48);
+		this.reachCircle.alpha = 0.2;
+		this.reachCircle.endFill();
+		if(this.combatKeys.switchCombatStyle.isDown){
+			this.groupCombatEnabled = !this.groupCombatEnabled;
+			this.combatKeys.switchCombatStyle.isDown = false;
+		}
+		
 		if(this.groupCombatEnabled){
 			this.engageGroupCombat(levelObjects.enemies);
 		}
 		if(game.input.activePointer.leftButton.isDown && !this.groupCombatEnabled){
-			if(this.combatStyle === "single"){
+	
 				this.engageSingleCombat(levelObjects.enemies);
-			}else if(this.combatStyle === "group"){
-				this.groupCombatEnabled = true;
-				this.engageGroupCombat(levelObjects.enemies);
-			}
+		
 		}else if(this.wasd.up.isDown){
 			this.body.velocity.y = -100;
 			this.animations.play("up");
@@ -110,7 +129,6 @@ Player = function(game, x, y){
 			}else if(this.lastDirection === "right"){
 				this.animations.play("hitRight", 5, false);
 			}
-
 
 			for(var i = 0; i < enemies.length; i++){
 				var enemy = enemies[i];
@@ -176,6 +194,8 @@ Player = function(game, x, y){
 				
 				this.timeAttacked = game.time.now;
 			}
+			
+			
 		}
 	};
 	

@@ -7,7 +7,7 @@ Enemy = function(game, x, y, type){
 		chest: {name: "chainmail", type: "armor", damage: 0, protection: 1},
 	};
 
-	this.health = 1;
+	this.health = 5;
 	this.primalDamage = 1;
 	this.weaponDamage = 0;
 	this.protection = 1;
@@ -18,6 +18,8 @@ Enemy = function(game, x, y, type){
 	this.inventory = [];
 	this.timeAttacked = 0;
 	this.tempCooldownTime = 0;
+	
+	this.hitCount = 0;
 
     this.animations.add('right', [0,1], 10, true);
 	this.animations.add('left', [2,3], 10, true);
@@ -132,11 +134,12 @@ Enemy = function(game, x, y, type){
 
 		if(damageTaken > 0){
 			//todo: Spela blod-animation.
-			game.time.events.add(1000*attacker.attackRate, function(){
-			    var dmgText = game.add.text(this.x, this.y-25, "-"+damageTaken, {
-					font: "16px Arial",
-	    			fill: "#ff0000",
-				});
+		
+		    var dmgText = game.add.text(this.x+(this.hitCount*5), this.y-(this.hitCount*5), "-"+damageTaken, {
+				font: "16px Arial",
+    			fill: "#ff0000",
+			});
+			game.time.events.add(attacker.attackRate, function(){
 
 				var dmgTextFadeOut = game.add.tween(dmgText).to({alpha: 0}, 1500, null, true);
 
@@ -144,10 +147,16 @@ Enemy = function(game, x, y, type){
 					dmgText.destroy();
 				});
 			}, this);
+			
+			this.hitCount++;
+			if(this.hitCount === 3){
+				this.hitCount = 0;
+			}
+
 		}
 
 		if(this.health < 1){
-			this.kill();
+			this.destroy();
 		}
 	};
 };

@@ -16,6 +16,7 @@ TopDownGame.Game.prototype = {
 	create: function(){
 		this.map = this.game.add.tilemap('dungeontest');
 		this.map.addTilesetImage('tiles', 'gameTiles');
+		this.map.addTilesetImage('tree', 'tree');
 
 		this.backgroundLayer = this.map.createLayer('backgroundLayer', 768, 768);
 		this.blockLayer = this.map.createLayer('blockLayer', 768, 768 );
@@ -49,7 +50,7 @@ TopDownGame.Game.prototype = {
 		this.gameLog = [];
 		this.gameLogHistory = [];
 
-		this.addText("Welcome!");
+		this.addText("Welcome!");	
 	},
 
 	update: function(){
@@ -61,7 +62,7 @@ TopDownGame.Game.prototype = {
 		this.enemies.setAll('body.immovable', true);
 		this.npcs.setAll('body.immovable', true);
 		this.game.physics.arcade.collide(this.player, this.enemies, this.collisionHandlerPlayerAndEnemy, null, this);
-		this.game.physics.arcade.collide(this.player, this.npcs);
+		this.game.physics.arcade.collide(this.player, this.npcs, this.collisionHandlerPlayerAndNPC, null, this);
 		this.enemies.setAll('body.immovable', false);
 		this.game.physics.arcade.collide(this.enemies, this.enemies, this.collisionHandlerEnemyAndEnemy);
 
@@ -89,6 +90,12 @@ TopDownGame.Game.prototype = {
 		enemy.animations.stop();
 
 	},
+	
+	collisionHandlerPlayerAndNPC: function(player, NPC){
+		if(!NPC.conversations[0].ended){
+			this.addText(NPC.name + ": " + NPC.chat(player));
+		}
+	},
 
 	pickupItem: function(character,item){
 		character.inventory.push(item.key);
@@ -98,7 +105,6 @@ TopDownGame.Game.prototype = {
 	},
 
 	handleDoor: function(character, door){
-		console.log("hej");
 		door.open();
 
 		if(character.y > door.y ){

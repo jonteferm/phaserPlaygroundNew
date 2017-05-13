@@ -6,6 +6,8 @@ NPC = function(game, x, y, type){
 	this.equipped = {
 		
 	};
+	
+	this.name = "Lola";
 
 	this.health = 1;
 	this.primalDamage = 1;
@@ -18,6 +20,20 @@ NPC = function(game, x, y, type){
 	this.inventory = [];
 	this.timeAttacked = 0;
 	this.tempCooldownTime = 0;
+	
+	this.conversations = [{
+		id: 1,
+		ended: false,
+		linesSpoken: 0,
+		lines: [{
+			spoken: false,
+			line: 'Hi, my name is Lola.\nWhat are you doing out here in the wilderness?',
+		},
+		{
+			spoken: false,
+			line: ''
+		}]
+	}];
 
 	this.events.onAnimationComplete.add(function(){			
 		this.animations.stop(true, true);	
@@ -113,11 +129,12 @@ NPC = function(game, x, y, type){
 
 		if(damageTaken > 0){
 			//todo: Spela blod-animation.
-			game.time.events.add(1000*attacker.attackRate, function(){
-			    var dmgText = game.add.text(this.x, this.y-25, "-"+damageTaken, {
-					font: "16px Arial",
-	    			fill: "#ff0000",
-				});
+		
+		    var dmgText = game.add.text(this.x+(this.hitCount*5), this.y-(this.hitCount*5), "-"+damageTaken, {
+				font: "16px Arial",
+    			fill: "#ff0000",
+			});
+			game.time.events.add(attacker.attackRate, function(){
 
 				var dmgTextFadeOut = game.add.tween(dmgText).to({alpha: 0}, 1500, null, true);
 
@@ -125,10 +142,37 @@ NPC = function(game, x, y, type){
 					dmgText.destroy();
 				});
 			}, this);
+			
+			this.hitCount++;
+			if(this.hitCount === 3){
+				this.hitCount = 0;
+			}
+
 		}
 
 		if(this.health < 1){
-			this.kill();
+			this.destroy();
 		}
 	};
+	
+	this.chat = function(speaksWith){
+		
+		for(var i = 0; i < this.conversations[0].lines.length; i++){
+			/*TODO: om speaksWith inom räckhåll
+			 * Annars pausa eller nollställ
+			 */
+			
+			if(!this.conversations[0].lines[i].spoken){
+				this.conversations[0].lines[i].spoken = true;
+				this.conversations[0].linesSpoken++;
+				if(this.conversations[0].linesSpoken === this.conversations[0].lines.length){
+					this.conversations[0].ended = true;
+				}
+
+
+				return this.conversations[0].lines[i].line;
+			}
+		}
+		
+	}
 };
