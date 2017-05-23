@@ -51,6 +51,8 @@ TopDownGame.Game.prototype = {
 		this.gameLogHistory = [];
 
 		this.addText("Welcome!");	
+		
+		this.game.canvas.oncontextmenu = function (e) { e.preventDefault(); }
 	},
 
 	update: function(){
