@@ -2,9 +2,11 @@ var TopDownGame = TopDownGame || {};
 
 TopDownGame.Game = function(){};
 
-Player.prototype = Object.create(Phaser.Sprite.prototype);
+Character.prototype = Object.create(Phaser.Sprite.prototype);
 
-Enemy.prototype = Object.create(Phaser.Sprite.prototype);
+Player.prototype = Object.create(Character.prototype);
+
+Enemy.prototype = Object.create(Character.prototype);
 
 NPC.prototype = Object.create(Phaser.Sprite.prototype);
 

@@ -1,5 +1,6 @@
 Player = function(game, x, y){
-	Phaser.Sprite.call(this, game, x, y, 'player');
+	Character.call(this, game, x, y, 'player');
+	
 	this.equipped = {
 		rightHand: {
 			name: "broadsword", 
@@ -51,9 +52,9 @@ Player = function(game, x, y){
 	this.animations.add('hitLeft', [5, 8, 9], 5, true);
 	this.animations.add('idleUp', [10], 5, true);
 	this.animations.add('up', [10, 11, 12], 5);
-	this.animations.add('idleDown', [13], 5, true);
-	this.animations.add('down', [13, 14, 15], 5);
-	this.animations.add('hitDown', [13, 16, 17], 5, true);
+	this.animations.add('idleDown', [15], 5, true);
+	this.animations.add('down', [15, 16, 17], 5);
+	this.animations.add('hitDown', [15, 18, 19], 5, true);
 
 	this.reachCircle = this.game.add.graphics();
 	this.reachCircle.beginFill(0x000000, 1);
@@ -150,13 +151,12 @@ Player = function(game, x, y){
 			}else if(this.lastDirection === "right"){
 				this.animations.play("hitRight", 5, false);
 			}
-
+			
 			for(var i = 0; i < enemies.length; i++){
 				var enemy = enemies[i];
 				
 				if(this.checkHitEnemy(enemy, game.input.activePointer.x+game.camera.x, game.input.activePointer.y+game.camera.y)){
 					this.enemiesAttacked.push(enemy);
-	
 				}
 			}
 

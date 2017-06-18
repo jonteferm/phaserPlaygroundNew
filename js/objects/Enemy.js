@@ -1,5 +1,5 @@
 Enemy = function(game, x, y, type){
-	Phaser.Sprite.call(this, game, x, y, type);
+	Character.call(this, game, x, y, type);
 	
 	this.id = 0;
 	
@@ -85,45 +85,46 @@ Enemy = function(game, x, y, type){
 	};
 
 	this.takeActions = function(levelObjects){
+		var reachOpponent = false;
+		
 		if(this.checkSpotPlayer(levelObjects.player.x, levelObjects.player.y)){
 			this.makeMovement(levelObjects.player.x, levelObjects.player.y);	
 		}
 		
-		if(game.time.now - this.timeAttacked > (this.attackRate*800) + this.tempCooldownTime){
-			this.canBeBlocked = true;
-				
-			var attackWarning = game.add.text(this.x+(this.hitCount*5), this.y-(this.hitCount*5), "!", {
-				font: "18px Arial",
-    			fill: "#66ffff",
-			});
-		    
-			var attackWarningFadeOut = game.add.tween(attackWarning).to({alpha: 0}, 100, null, true);
+		for(var i = 0; i < levelObjects.opponents.length; i++){
+			var opponent = levelObjects.opponents[i];
 
-			attackWarningFadeOut.onComplete.add(function(){
-				this.canBeBlocked = false;
-				attackWarning.destroy();
-			});
+			reachOpponent = this.checkReachOpponent(opponent)
 		}
+		if(reachOpponent){
+			if(game.time.now - this.timeAttacked > (this.attackRate*800) + this.tempCooldownTime){
+				this.canBeBlocked = true;
+					
+				var attackWarning = game.add.text(this.x+(this.hitCount*5), this.y-(this.hitCount*5), "!", {
+					font: "18px Arial",
+					fill: "#66ffff",
+				});
+			    
+				var attackWarningFadeOut = game.add.tween(attackWarning).to({alpha: 0}, 100, null, true);
+		
+				attackWarningFadeOut.onComplete.add(function(){
+					this.canBeBlocked = false;
+					attackWarning.destroy();
+				});
+			}
 		
 		
-		if(game.time.now - this.timeAttacked > (this.attackRate*1000) + this.tempCooldownTime){
-
-			for(var i = 0; i < levelObjects.opponents.length; i++){
-				var opponent = levelObjects.opponents[i];
-
-				if(this.checkHitOpponent(opponent)){
-					//todo: opponent.takeDamage
+			if(game.time.now - this.timeAttacked > (this.attackRate*1000) + this.tempCooldownTime){
 					this.timeAttacked = game.time.now;
 					console.log("enemy " + this.id + " strikes player!");
 					opponent.takeDamage(this, "primary");
-				}
+				
+					this.tempCooldownTime = 0;
 			}
-			
-			this.tempCooldownTime = 0;
 		}
 	};
 
-	this.checkHitOpponent = function(opponent){
+	this.checkReachOpponent = function(opponent){
 		var totalReachRight = (this.x + 48) + this.reach*48;
 		var totalReachLeft = this.x - this.reach*48;
 		var totalReachUp = this.y - this.reach*48;
